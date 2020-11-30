@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled, { css } from 'styled-components';
-import { faTimesCircle, faEdit } from '@fortawesome/free-regular-svg-icons';
+import { faTimesCircle, faEdit, faCheckCircle } from '@fortawesome/free-regular-svg-icons';
 import { palette } from 'styled-theme';
 
 const resetButton = css`
@@ -33,6 +33,14 @@ export const StyledDelete = styled(FontAwesomeIcon).attrs({ icon: faTimesCircle 
 
 export const StyledEdit = styled(FontAwesomeIcon).attrs({ icon: faEdit })`
     color: red;
+    font-size: 24px;
+`;
+export const StyledChecked = styled(FontAwesomeIcon).attrs({ icon: faCheckCircle })`
+    color: red;
+    font-size: 24px;
+`;
+export const StyledUnchecked = styled(FontAwesomeIcon).attrs({ icon: faCheckCircle })`
+    color: grey;
     font-size: 24px;
 `;
 

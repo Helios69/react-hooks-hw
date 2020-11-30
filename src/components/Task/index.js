@@ -1,60 +1,84 @@
-import React, { Component, Fragment } from 'react';
+import React, { useReducer, Fragment } from 'react';
 import Input from 'components/Input';
 
-import { StyledEdit, StyledTask, StyledDelete, StyledText, StyledButton, StyledEditForm, StyledButtonsWrapper } from './styles';
+import { StyledEdit, StyledTask, StyledDelete, StyledText, StyledButton, StyledEditForm, StyledButtonsWrapper, StyledChecked, StyledUnchecked } from './styles';
 
-class Task extends Component {
-    state = {
-        editValue: '',
-        isEdit: false,
+const initialState = {
+    editValue: '',
+    isEdit: false,
+};
+
+function reducer(state, action) {
+    switch (action.type) {
+      case 'EDIT_CHANGE':
+        return {...state, editValue: action.payload};
+      case 'EDIT_PRESS':
+        return {...state, editValue: action.payload.editValue, isEdit: action.payload.isEdit};
+      case 'DROP_EDIT':
+        return {...state, editValue: '', isEdit: false};
+      default:
+        throw new Error();
+    }
+  }
+
+function Task({ id, onDelete, onSave, children, isCompleted }){
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    const onEditChange = (value) => {
+        dispatch({type: 'EDIT_CHANGE', payload: value});
+    };
+    const onCheck = () => {
+        onSave({ id, text: children, isCompleted: !isCompleted });
     };
 
-    onEditChange = (value) => this.setState({ editValue: value });
+    const onEditPress = () => {
+        dispatch({type: 'EDIT_PRESS', payload: {editValue: children, isEdit: true}});
+    };
 
-    onEditPress = () => this.setState({ editValue: this.props.children, isEdit: true });
-
-    onSaveEdit = (e) => {
+    const onSaveEdit = (e) => {
         e.preventDefault();
 
-        const { editValue } = this.state;
+        const { editValue } = state;
 
         if (editValue) {
-            const { id } = this.props;
-
-            this.props.onSave({ id, text: this.state.editValue });
-            this.setState({ editValue: '', isEdit: false });
+            onSave({ id, text: editValue });
+            dispatch({type: 'DROP_EDIT'})
         }
     };
+    return (
+        <StyledTask>
+            {state.isEdit ? (
+                <StyledEditForm onSubmit={onSaveEdit} onBlur={onSaveEdit} >
+                    <Input 
+                        onChange={onEditChange} value={state.editValue}
+                        placeholder="Task must contain title"
+                    />
+                </StyledEditForm>
+            ) : (
+                <Fragment>
+                    <StyledButton onClick={onCheck}>
+                        {
+                            isCompleted ? 
+                            <StyledChecked />
+                            :
+                            <StyledUnchecked />
+                        }
+                    </StyledButton>
+                    <StyledText style={{textDecoration: isCompleted ? 'line-through' : 'none'}}>{children}</StyledText>
 
-    render() {
-        const { onDelete, children, id } = this.props;
-
-        return (
-            <StyledTask>
-                {this.state.isEdit ? (
-                    <StyledEditForm onSubmit={this.onSaveEdit} onBlur={this.onSaveEdit} >
-                        <Input 
-                            onChange={this.onEditChange} value={this.state.editValue}
-                            placeholder="Task must contain title"
-                        />
-                    </StyledEditForm>
-                ) : (
-                    <Fragment>
-                        <StyledText>{children}</StyledText>
-
-                        <StyledButtonsWrapper>
-                            <StyledButton onClick={this.onEditPress}>
-                                <StyledEdit />
-                            </StyledButton>
-                            <StyledButton onClick={() => onDelete(id)}>
-                                <StyledDelete />
-                            </StyledButton>
-                        </StyledButtonsWrapper>
-                    </Fragment>
-                )}
-            </StyledTask>
-        );
-    }
+                    <StyledButtonsWrapper>
+                        <StyledButton onClick={onEditPress}>
+                            <StyledEdit />
+                        </StyledButton>
+                        <StyledButton onClick={() => onDelete(id)}>
+                            <StyledDelete />
+                        </StyledButton>
+                    </StyledButtonsWrapper>
+                </Fragment>
+            )}
+        </StyledTask>
+    );
 }
+
 
 export default Task;

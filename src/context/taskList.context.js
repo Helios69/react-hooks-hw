@@ -1,68 +1,55 @@
-import React, { Component, createContext } from 'react';
+import React, { useState, useEffect, createContext } from 'react';
 import { v4 } from 'uuid';
 import { saveState } from '../utils/localStorage';
 
-const TaskListContext = createContext({});
+export const TaskListContext = createContext({});
 
-export const { Provider, Consumer: TaskListConsumer } = TaskListContext;
+const { Provider } = TaskListContext;
 
-class TaskListProvider extends Component {
-    state = {
-        list: [],
-    };
-
-    constructor(props) {
-        super(props);
-
-        const { defaultState } = props;
+function TaskListProvider({defaultState, children}) {
+    const [list, setList] = useState([]);
     
-        if (Array.isArray(defaultState)) this.state = {
-            list: [...defaultState],
-        };
-    }
-
-    addTask = ({ text, id }) => {
-        let task = id ? this.state.list.find(({ id: taskId }) => taskId === id) || { id: v4() } : { id: v4() };
+    useEffect(() => {
+        if (Array.isArray(defaultState)) setList([...defaultState]);
+    }, []);
+    const addTask = ({ text, id, isCompleted }) => {
+        let task = id ? list.find(({ id: taskId }) => taskId === id) || { id: v4() } : { id: v4() };
         
         task = {
             ...task,
             text,
+            isCompleted
         };
 
         const state = [
             task,
-            ...this.state.list.filter(({ id }) => id !== task.id),
+            ...list.filter(({ id }) => id !== task.id),
         ];
 
         saveState(state);
 
-        return this.setState({ list: state });
+        return setList(state);
     };
 
-    removeTask = (taskId) => {
+    const removeTask = (taskId) => {
         const state = [
-            ...this.state.list.filter(({ id }) => id !== taskId),
+            ...list.filter(({ id }) => id !== taskId),
         ];
 
         saveState(state);
 
-        return this.setState({ list: state });
+        return setList(state);
     };
 
-    render() {
-        const { addTask, removeTask } = this;
-        const { children } = this.props;
-
-        return (
-            <Provider value={{
-                taskList: this.state.list,
-                addTask,
-                removeTask,
-            }}>
-                {children}
-            </Provider>
-        );
-    }
+    return (
+        <Provider value={{
+            taskList: list,
+            addTask,
+            removeTask,
+        }}>
+            {children}
+        </Provider>
+    );
 }
 
 export default TaskListProvider;

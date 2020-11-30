@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 import TaskListProvider from 'context/taskList.context';
 import { getState } from 'utils/localStorage';
@@ -10,17 +10,15 @@ import { StyledWrapper } from './styles';
 
 const defaultStateValue = getState() || [];
 
-class HomePage extends Component {
-  render() {
-    return (
-      <TaskListProvider defaultState={defaultStateValue}>
-        <StyledWrapper>
-          <Form />
-          <List />
-        </StyledWrapper>
-      </TaskListProvider>
-    );
-  }
+function HomePage() {
+  return (
+    <TaskListProvider defaultState={defaultStateValue}>
+      <StyledWrapper>
+        <Form />
+        <List />
+      </StyledWrapper>
+    </TaskListProvider>
+  );
 }
 
 export default HomePage
