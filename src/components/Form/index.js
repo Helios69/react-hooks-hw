@@ -7,10 +7,8 @@ import { StyledForm, StyledAddButton } from './styles';
 function Form() {
     const [inputValue, setInputValue] = useState('');
     const ctx = useContext(TaskListContext);
-
     const addTask = useCallback((e) => {
         e.preventDefault();
-
         if (inputValue) {
             ctx.addTask({ text: inputValue, isCompleted: false });
             setInputValue('');

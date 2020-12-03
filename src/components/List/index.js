@@ -20,15 +20,13 @@ function List() {
         return taskList.sort((a,b) => a.isCompleted - b.isCompleted).map(({ text, id, isCompleted }) => (
             <Task 
                 key={id} 
-                onDelete={ctx.removeTask}
-                onSave={ctx.addTask}
                 id={id}
                 isCompleted={isCompleted}
             >
                 {text}
             </Task>
         ))
-    }, [taskList.length]); 
+    }, [taskList, taskList.length]); 
 
     return (
         <StyledList ref={listRef}>

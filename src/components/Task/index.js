@@ -1,56 +1,42 @@
-import React, { useReducer, Fragment } from 'react';
+import React, { useState, Fragment, useContext } from 'react';
 import Input from 'components/Input';
+import { TaskListContext } from 'context/taskList.context';
 
 import { StyledEdit, StyledTask, StyledDelete, StyledText, StyledButton, StyledEditForm, StyledButtonsWrapper, StyledChecked, StyledUnchecked } from './styles';
 
-const initialState = {
-    editValue: '',
-    isEdit: false,
-};
+function Task({ id, children, isCompleted }){
+    const [editValue, setEditValue] = useState('');
+    const [isEdit, setIsEdit] = useState(false);
+    const {addTask, removeTask, checkTask, taskList} = useContext(TaskListContext);
 
-function reducer(state, action) {
-    switch (action.type) {
-      case 'EDIT_CHANGE':
-        return {...state, editValue: action.payload};
-      case 'EDIT_PRESS':
-        return {...state, editValue: action.payload.editValue, isEdit: action.payload.isEdit};
-      case 'DROP_EDIT':
-        return {...state, editValue: '', isEdit: false};
-      default:
-        throw new Error();
-    }
-  }
-
-function Task({ id, onDelete, onSave, children, isCompleted }){
-    const [state, dispatch] = useReducer(reducer, initialState);
-
-    const onEditChange = (value) => {
-        dispatch({type: 'EDIT_CHANGE', payload: value});
-    };
-    const onCheck = () => {
-        onSave({ id, text: children, isCompleted: !isCompleted });
-    };
+    const onEditChange = (value) => setEditValue(value);
 
     const onEditPress = () => {
-        dispatch({type: 'EDIT_PRESS', payload: {editValue: children, isEdit: true}});
+        setEditValue(children);
+        setIsEdit(true);
+    }
+
+    const onCheck = () => {
+        checkTask({ id, text: children, isCompleted });
     };
 
     const onSaveEdit = (e) => {
         e.preventDefault();
-
-        const { editValue } = state;
-
-        if (editValue) {
-            onSave({ id, text: editValue });
-            dispatch({type: 'DROP_EDIT'})
+        //bug about repeating task name when editing
+        const isTaskExists = taskList.some(({ text }) => editValue === text);
+        if (editValue && !isTaskExists) {
+            addTask({ id, text: editValue });
+            setEditValue('');
+            setIsEdit(false);
         }
     };
+    
     return (
         <StyledTask>
-            {state.isEdit ? (
+            {isEdit ? (
                 <StyledEditForm onSubmit={onSaveEdit} onBlur={onSaveEdit} >
                     <Input 
-                        onChange={onEditChange} value={state.editValue}
+                        onChange={onEditChange} value={editValue}
                         placeholder="Task must contain title"
                     />
                 </StyledEditForm>
@@ -70,7 +56,7 @@ function Task({ id, onDelete, onSave, children, isCompleted }){
                         <StyledButton onClick={onEditPress}>
                             <StyledEdit />
                         </StyledButton>
-                        <StyledButton onClick={() => onDelete(id)}>
+                        <StyledButton onClick={() => removeTask(id)}>
                             <StyledDelete />
                         </StyledButton>
                     </StyledButtonsWrapper>
