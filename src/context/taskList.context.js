@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useCallback, useReducer } from "react";
 import { v4 } from "uuid";
 import { getState, saveState } from "../utils/localStorage";
 import { ADD_TASK, CHECK_TASK, REMOVE_TASK } from "./types";
@@ -45,10 +45,9 @@ const reducer = (state = defaultStateValue, action) => {
 const TaskListProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, defaultStateValue);
 
-  const addTask = (task) => dispatch({ type: ADD_TASK, payload: task });
-  const removeTask = (taskId) =>
-    dispatch({ type: REMOVE_TASK, payload: taskId });
-  const checkTask = (task) => dispatch({ type: CHECK_TASK, payload: task });
+  const addTask = useCallback((task) => dispatch({ type: ADD_TASK, payload: task }), []);
+  const removeTask = useCallback((taskId) => dispatch({ type: REMOVE_TASK, payload: taskId }), []);
+  const checkTask = useCallback((task) => dispatch({ type: CHECK_TASK, payload: task }), []);
 
   return (
     <Provider

@@ -26,7 +26,7 @@ function List() {
                 {text}
             </Task>
         ))
-    }, [taskList, taskList.length]); 
+    }, [taskList]); 
 
     return (
         <StyledList ref={listRef}>
